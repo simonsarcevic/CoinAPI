@@ -4,7 +4,7 @@
 
 Das andere Plugin verwendet die `CoinSystem.jar` ausschließlich als
 `provided`-/`compileOnly`-Abhängigkeit. Die API-Klassen dürfen nicht in die JAR
-des anderen Plugins kopiert oder geshadet werden.
+des anderen Plugins kopiert oder eingebettet werden.
 
 In der `plugin.yml` des anderen Plugins muss CoinSystem als feste Abhängigkeit
 eingetragen werden:
@@ -84,20 +84,25 @@ verfügbare Kontostand steht in `getBalance()`.
 
 ## Beispiel für eine Abbuchung
 
+Diese Methode kann in die oben gezeigte Klasse `BeispielPlugin` eingefügt
+werden:
+
 ```java
-coinAPI.removeCoins(player.getUniqueId(), player.getName(), 100.0D)
-        .thenAccept(transaction -> {
-            if (!transaction.isSuccessful()) {
-                getServer().getScheduler().runTask(
-                        this,
-                        () -> player.sendMessage("Nicht genügend Coins.")
+public void removeCoins(Player player) {
+    coinAPI.removeCoins(player.getUniqueId(), player.getName(), 100.0D)
+            .thenAccept(transaction -> {
+                if (!transaction.isSuccessful()) {
+                    getServer().getScheduler().runTask(
+                            this,
+                            () -> player.sendMessage("Nicht genügend Coins.")
+                    );
+                }
+            })
+            .exceptionally(error -> {
+                getLogger().warning(
+                        "Abbuchung fehlgeschlagen: " + error.getMessage()
                 );
-            }
-        })
-        .exceptionally(error -> {
-            getLogger().warning(
-                    "Abbuchung fehlgeschlagen: " + error.getMessage()
-            );
-            return null;
-        });
+                return null;
+            });
+}
 ```
