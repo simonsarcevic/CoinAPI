@@ -1,0 +1,15 @@
+starting-balance: 0.0
+baltop-size: 10
+
+currency:
+  singular: Coin
+  plural: Coins
+
+database:
+  host: localhost
+  port: 3306
+  database: coinsystem
+  username: coinsystem
+  password: "Test123!"
+  table: coin_accounts
+  use-ssl: false
