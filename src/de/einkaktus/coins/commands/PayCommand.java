@@ -40,7 +40,7 @@ public final class PayCommand extends BaseCommand implements CommandExecutor, Ta
         Player player = (Player) sender;
         OfflinePlayer target = offlinePlayer(args[0]);
         if (player.getUniqueId().equals(target.getUniqueId())) {
-            sender.sendMessage(Messages.prefix + ChatColor.RED + "Du kannst dir nicht selbst Coins überweisen.");
+            sender.sendMessage(Messages.prefix + ChatColor.GRAY + "Du kannst dir §cnicht §7selbst Coins überweisen!");
             return true;
         }
 
@@ -53,12 +53,12 @@ public final class PayCommand extends BaseCommand implements CommandExecutor, Ta
         async(sender, () -> {
             CoinManager.TransactionResult result = coinManager.transfer(player, target, amount);
             if (!result.isSuccessful()) {
-                reply(sender, Messages.prefix + ChatColor.RED + "Du besitzt nicht genügend Coins.");
+                reply(sender, Messages.prefix + ChatColor.GRAY + "Du besitzt §cnicht §7genügend Coins!");
                 return;
             }
 
-            reply(sender, Messages.prefix + "Du hast " + ChatColor.YELLOW + displayName(target) + ChatColor.GRAY
-                    + " " + ChatColor.GOLD + economy.format(amount) + ChatColor.GRAY + " überwiesen.");
+            reply(sender, Messages.prefix + "Du hast " + ChatColor.GREEN + displayName(target) + ChatColor.GRAY
+                    + " " + ChatColor.GREEN + economy.format(amount) + ChatColor.GRAY + " überwiesen!");
             Bukkit.getScheduler().runTask(plugin, () -> notifyRecipient(player, target, amount));
         });
         return true;
@@ -67,8 +67,8 @@ public final class PayCommand extends BaseCommand implements CommandExecutor, Ta
     private void notifyRecipient(Player sender, OfflinePlayer recipient, double amount) {
         Player onlineRecipient = Bukkit.getPlayer(recipient.getUniqueId());
         if (onlineRecipient != null) {
-            onlineRecipient.sendMessage(Messages.prefix + ChatColor.YELLOW + sender.getName() + ChatColor.GRAY
-                    + " hat dir " + ChatColor.GOLD + economy.format(amount) + ChatColor.GRAY + " überwiesen.");
+            onlineRecipient.sendMessage(Messages.prefix + ChatColor.GREEN + sender.getName() + ChatColor.GRAY
+                    + " hat dir " + ChatColor.GREEN + economy.format(amount) + ChatColor.GRAY + " überwiesen!");
         }
     }
 

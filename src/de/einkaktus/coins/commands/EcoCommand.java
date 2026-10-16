@@ -49,8 +49,8 @@ public final class EcoCommand extends BaseCommand implements CommandExecutor, Ta
         if (action.equals("reset")) {
             async(sender, () -> {
                 double balance = coinManager.resetBalance(target);
-                reply(sender, Messages.prefix + ChatColor.YELLOW + displayName(target) + ChatColor.GRAY
-                        + " wurde auf " + ChatColor.GOLD + economy.format(balance) + ChatColor.GRAY + " zurückgesetzt.");
+                reply(sender, Messages.prefix + ChatColor.RED + displayName(target) + ChatColor.GRAY
+                        + " wurde auf " + ChatColor.RED + economy.format(balance) + ChatColor.GRAY + " zurückgesetzt!");
             });
             return true;
         }
@@ -73,29 +73,29 @@ public final class EcoCommand extends BaseCommand implements CommandExecutor, Ta
         } else if (action.equals("take")) {
             CoinManager.TransactionResult result = coinManager.withdraw(target, amount);
             if (!result.isSuccessful()) {
-                reply(sender, Messages.prefix + ChatColor.RED + displayName(target) + " besitzt nicht genügend Coins.");
+                reply(sender, Messages.prefix + ChatColor.RED + displayName(target) + "§7 besitzt §cnicht §7genügend Coins!");
                 return;
             }
             reply(sender, changedMessage(target, amount, result.getBalance(), "abgezogen"));
         } else {
             double balance = coinManager.setBalance(target, amount);
-            reply(sender, Messages.prefix + ChatColor.YELLOW + displayName(target) + ChatColor.GRAY
-                    + " hat nun " + ChatColor.GOLD + economy.format(balance) + ChatColor.GRAY + ".");
+            reply(sender, Messages.prefix + ChatColor.GREEN + displayName(target) + ChatColor.GRAY
+                    + " hat nun " + ChatColor.GREEN + economy.format(balance) + ChatColor.GRAY + "!");
         }
     }
 
     private String changedMessage(OfflinePlayer target, double amount, double balance, String operation) {
-        return Messages.prefix + ChatColor.YELLOW + displayName(target) + ChatColor.GRAY + " wurden "
-                + ChatColor.GOLD + economy.format(amount) + ChatColor.GRAY + " " + operation
-                + ". Neuer Kontostand: " + ChatColor.GOLD + economy.format(balance);
+        return Messages.prefix + ChatColor.GREEN + displayName(target) + ChatColor.GRAY + " wurden "
+                + ChatColor.GREEN + economy.format(amount) + ChatColor.GRAY + " " + operation
+                + ". Neuer Kontostand: " + ChatColor.GREEN + economy.format(balance);
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + "----- CoinSystem Admin -----");
-        sender.sendMessage(ChatColor.YELLOW + "/eco give <Spieler> <Betrag>");
-        sender.sendMessage(ChatColor.YELLOW + "/eco take <Spieler> <Betrag>");
-        sender.sendMessage(ChatColor.YELLOW + "/eco set <Spieler> <Betrag>");
-        sender.sendMessage(ChatColor.YELLOW + "/eco reset <Spieler>");
+        sender.sendMessage(ChatColor.RED + "----- CoinSystem Admin -----");
+        sender.sendMessage(ChatColor.GREEN + "/eco give <Spieler> <Betrag>");
+        sender.sendMessage(ChatColor.GREEN + "/eco take <Spieler> <Betrag>");
+        sender.sendMessage(ChatColor.GREEN + "/eco set <Spieler> <Betrag>");
+        sender.sendMessage(ChatColor.GREEN + "/eco reset <Spieler>");
     }
 
     private String usage(String action) {
