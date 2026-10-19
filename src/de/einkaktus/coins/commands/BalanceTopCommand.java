@@ -41,8 +41,8 @@ public final class BalanceTopCommand extends BaseCommand implements CommandExecu
                 for (int index = 0; index < top.size(); index++) {
                     CoinManager.AccountBalance account = top.get(index);
                     String name = account.getName() == null ? account.getUuid().toString() : account.getName();
-                    lines.add(ChatColor.YELLOW + "#" + (index + 1) + " " + ChatColor.WHITE + name
-                            + ChatColor.DARK_GRAY + " - " + ChatColor.GOLD + economy.format(account.getBalance()));
+                    lines.add(ChatColor.GREEN + "#" + (index + 1) + " " + ChatColor.WHITE + name
+                            + ChatColor.DARK_GRAY + " - " + ChatColor.GREEN + economy.format(account.getBalance()));
                 }
             }
             Bukkit.getScheduler().runTask(plugin, () -> lines.forEach(sender::sendMessage));

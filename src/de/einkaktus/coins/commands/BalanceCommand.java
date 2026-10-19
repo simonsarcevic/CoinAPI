@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public final class BalanceCommand extends BaseCommand implements CommandExecutor, TabCompleter {
 
@@ -47,12 +48,19 @@ public final class BalanceCommand extends BaseCommand implements CommandExecutor
             target = offlinePlayer(args[0]);
         }
 
+        UUID targetId = target.getUniqueId();
+        String targetName = target.getName();
+        String targetDisplayName = displayName(target);
+        boolean ownBalance = sender instanceof Player
+                && ((Player) sender).getUniqueId().equals(targetId);
+
         async(sender, () -> {
-            double balance = coinManager.getBalance(target);
-            String owner = sender instanceof Player && ((Player) sender).getUniqueId().equals(target.getUniqueId())
-                    ? "Dein Kontostand" : "Kontostand von " + displayName(target);
-            reply(sender, Messages.prefix + ChatColor.YELLOW + owner + ChatColor.GRAY + ": "
-                    + ChatColor.GOLD + economy.format(balance));
+            double balance = coinManager.getBalance(targetId, targetName);
+            String owner = ownBalance
+                    ? "Dein Kontostand beträgt"
+                    : "Kontostand von " + targetDisplayName + " beträgt";
+            reply(sender, Messages.prefix + ChatColor.GRAY + owner + ChatColor.DARK_GRAY + ": "
+                    + ChatColor.GREEN + economy.format(balance));
         });
         return true;
     }

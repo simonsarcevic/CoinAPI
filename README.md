@@ -1,5 +1,25 @@
 # CoinSystem-API verwenden
 
+## Datenbank konfigurieren
+
+Die MariaDB-/MySQL-Zugangsdaten werden unabhängig von den übrigen Einstellungen
+in `plugins/CoinSystem/mysql.yml` gespeichert:
+
+```yaml
+host: localhost
+port: 3306
+database: coinsystem
+username: root
+password: ""
+table: coin_accounts
+use-ssl: false
+```
+
+Ist für den Datenbankbenutzer kein Passwort gesetzt, bleibt `password: ""` leer.
+Nach Änderungen an `mysql.yml` muss der Server vollständig neu gestartet werden.
+Existiert bei der Aktualisierung noch keine `mysql.yml`, übernimmt CoinSystem
+einmalig vorhandene Werte aus dem bisherigen `database`-Abschnitt der `config.yml`.
+
 ## Abhängigkeit einrichten
 
 Das andere Plugin verwendet die `CoinSystem.jar` ausschließlich als

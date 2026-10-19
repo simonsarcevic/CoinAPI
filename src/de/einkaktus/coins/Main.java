@@ -10,8 +10,13 @@ import de.einkaktus.coins.util.CoinManager;
 import de.einkaktus.coins.util.CoinSystemApiProvider;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
 
 public class Main extends JavaPlugin {
 
@@ -19,13 +24,22 @@ public class Main extends JavaPlugin {
     private CoinManager coinManager;
     private CoinEconomy economy;
     private CoinSystemAPI coinSystemAPI;
+    private File mysqlConfigFile;
+    private FileConfiguration mysqlConfig;
 
     @Override
     public void onEnable() {
         instance = this;
-        saveDefaultConfig();
+        try {
+            saveDefaultConfig();
+            loadMySqlConfig();
+        } catch (RuntimeException exception) {
+            getLogger().severe("Die Konfiguration konnte nicht geladen werden: " + exception.getMessage());
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
-        if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
+        if (!Bukkit.getPluginManager().isPluginEnabled("Vault")) {
             getLogger().severe("Vault wurde nicht gefunden. CoinSystem wird deaktiviert.");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
@@ -80,5 +94,39 @@ public class Main extends JavaPlugin {
 
     public CoinSystemAPI getCoinSystemAPI() {
         return coinSystemAPI;
+    }
+
+    public FileConfiguration getMySqlConfig() {
+        return mysqlConfig;
+    }
+
+    private void loadMySqlConfig() {
+        mysqlConfigFile = new File(getDataFolder(), "mysql.yml");
+        boolean newFile = !mysqlConfigFile.exists();
+        if (newFile) {
+            saveResource("mysql.yml", false);
+        }
+
+        mysqlConfig = YamlConfiguration.loadConfiguration(mysqlConfigFile);
+        if (newFile && getConfig().isConfigurationSection("database")) {
+            migrateLegacyDatabaseConfig();
+        }
+    }
+
+    private void migrateLegacyDatabaseConfig() {
+        String[] keys = {"host", "port", "database", "username", "password", "table", "use-ssl"};
+        for (String key : keys) {
+            String legacyPath = "database." + key;
+            if (getConfig().contains(legacyPath)) {
+                mysqlConfig.set(key, getConfig().get(legacyPath));
+            }
+        }
+
+        try {
+            mysqlConfig.save(mysqlConfigFile);
+            getLogger().info("Alte Datenbankeinstellungen wurden nach mysql.yml übernommen.");
+        } catch (IOException exception) {
+            throw new IllegalStateException("mysql.yml konnte nicht gespeichert werden.", exception);
+        }
     }
 }

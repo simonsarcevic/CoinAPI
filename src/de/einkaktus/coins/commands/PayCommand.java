@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public final class PayCommand extends BaseCommand implements CommandExecutor, TabCompleter {
 
@@ -50,24 +51,32 @@ public final class PayCommand extends BaseCommand implements CommandExecutor, Ta
             return true;
         }
 
+        UUID senderId = player.getUniqueId();
+        String senderName = player.getName();
+        UUID targetId = target.getUniqueId();
+        String targetName = target.getName();
+        String targetDisplayName = displayName(target);
+
         async(sender, () -> {
-            CoinManager.TransactionResult result = coinManager.transfer(player, target, amount);
+            CoinManager.TransactionResult result = coinManager.transfer(
+                    senderId, senderName, targetId, targetName, amount
+            );
             if (!result.isSuccessful()) {
                 reply(sender, Messages.prefix + ChatColor.GRAY + "Du besitzt §cnicht §7genügend Coins!");
                 return;
             }
 
-            reply(sender, Messages.prefix + "Du hast " + ChatColor.GREEN + displayName(target) + ChatColor.GRAY
+            reply(sender, Messages.prefix + "Du hast " + ChatColor.GREEN + targetDisplayName + ChatColor.GRAY
                     + " " + ChatColor.GREEN + economy.format(amount) + ChatColor.GRAY + " überwiesen!");
-            Bukkit.getScheduler().runTask(plugin, () -> notifyRecipient(player, target, amount));
+            Bukkit.getScheduler().runTask(plugin, () -> notifyRecipient(senderName, targetId, amount));
         });
         return true;
     }
 
-    private void notifyRecipient(Player sender, OfflinePlayer recipient, double amount) {
-        Player onlineRecipient = Bukkit.getPlayer(recipient.getUniqueId());
+    private void notifyRecipient(String senderName, UUID recipientId, double amount) {
+        Player onlineRecipient = Bukkit.getPlayer(recipientId);
         if (onlineRecipient != null) {
-            onlineRecipient.sendMessage(Messages.prefix + ChatColor.GREEN + sender.getName() + ChatColor.GRAY
+            onlineRecipient.sendMessage(Messages.prefix + ChatColor.GREEN + senderName + ChatColor.GRAY
                     + " hat dir " + ChatColor.GREEN + economy.format(amount) + ChatColor.GRAY + " überwiesen!");
         }
     }

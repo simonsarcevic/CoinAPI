@@ -2,6 +2,7 @@ package de.einkaktus.coins.util;
 
 import de.einkaktus.coins.Main;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,14 +25,15 @@ public final class CoinManager {
     private final double startingBalance;
 
     public CoinManager(Main plugin) {
-        String host = plugin.getConfig().getString("database.host", "localhost");
-        int port = plugin.getConfig().getInt("database.port", 3306);
-        String database = plugin.getConfig().getString("database.database", "coinsystem");
-        boolean useSsl = plugin.getConfig().getBoolean("database.use-ssl", false);
+        FileConfiguration mysql = plugin.getMySqlConfig();
+        String host = mysql.getString("host", "localhost");
+        int port = mysql.getInt("port", 3306);
+        String database = mysql.getString("database", "coinsystem");
+        boolean useSsl = mysql.getBoolean("use-ssl", false);
 
-        this.username = plugin.getConfig().getString("database.username", "root");
-        this.password = plugin.getConfig().getString("database.password", "");
-        this.table = validateTable(plugin.getConfig().getString("database.table", "coin_accounts"));
+        this.username = mysql.getString("username", "root");
+        this.password = mysql.getString("password", "");
+        this.table = validateTable(mysql.getString("table", "coin_accounts"));
         this.startingBalance = money(plugin.getConfig().getDouble("starting-balance", 0.0D));
         this.jdbcUrl = "jdbc:mariadb://" + host + ":" + port + "/" + database
                 + "?useSsl=" + useSsl + "&connectTimeout=5000&socketTimeout=10000";
